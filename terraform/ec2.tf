@@ -34,12 +34,15 @@ resource "aws_instance" "ec2" {
         install minikube-linux-amd64 /usr/local/bin/minikube
         usermod -s /bin/bash jenkins
         echo -e "123\n123" | sudo passwd jenkins
-        su - jenkins -c "minikube start"
-        sleep 5
-        kubectl create secret docker-registry regcred --docker-server=058302395964.dkr.ecr.eu-central-1.amazonaws.com --docker-username=AWS --docker-password=$(aws ecr get-login-password --region eu-central-1)
+        su - jenkins -c "minikube start --disk-size 10000mb"
+
 EOF
   iam_instance_profile = aws_iam_instance_profile.profile.name
   tags = {
     Name = "Jenkins"
+  }
+  root_block_device {
+    volume_size = 20
+    volume_type = "gp2"
   }
 }

@@ -25,4 +25,4 @@ docker login -u AWS https://058302395964.dkr.ecr.eu-central-1.amazonaws.com -p $
 docker push $image_name:$GIT_COMMIT
 
 ########DEPLOY############
-helm upgrade flask helm/ --atomic --wait --install --set deployment.tag=$tag
+helm upgrade flask helm/ --atomic --wait --install --set deployment.tag=$GIT_COMMIT
