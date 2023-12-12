@@ -29,27 +29,13 @@ resource "aws_instance" "ec2" {
         chmod 700 get_helm.sh
         ./get_helm.sh
 
-        #############INSTALL KIND###########
-        [ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
-        chmod +x ./kind
-        sudo mv ./kind /usr/local/bin/kind
-        echo "apiVersion: kind.x-k8s.io/v1alpha4
-kind: Cluster
-nodes:
-- role: control-plane
-  extraPortMappings:
-  - containerPort: 30000
-    hostPort: 30000
-    listenAddress: "0.0.0.0" # Optional, defaults to "0.0.0.0"
-    protocol: tcp # Optional, defaults to tcp
-- role: worker
-- role: worker" > /home/ec2-user/example.yaml
-        kind create cluster --config /home/ec2-user/example.yaml
+        #############INSTALL MINIKUBE###########
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        install minikube-linux-amd64 /usr/local/bin/minikube
         usermod -s /bin/bash jenkins
         echo -e "123\n123" | sudo passwd jenkins
-        mkdir -p /var/lib/jenkins/.kube/
-        cp /.kube/config /var/lib/jenkins/.kube/
-        chown -R jenkins:jenkins /var/lib/jenkins/.kube/
+        su - jenkins -c "minikube start"
+        sleep 5
         kubectl create secret docker-registry regcred --docker-server=058302395964.dkr.ecr.eu-central-1.amazonaws.com --docker-username=AWS --docker-password=$(aws ecr get-login-password --region eu-central-1)
 EOF
   iam_instance_profile = aws_iam_instance_profile.profile.name
